@@ -1,0 +1,244 @@
+<div class="wrap" ng-controller="NotificationCenterController as nc">
+  <h1 ng-show="nc.loading">{{ 'Loading...' | trans }}</h1>
+
+  <div class="box" ng-hide="nc.loading">
+    <h1>{{ 'Notification Center' | trans }}</h1>
+    <div class="content">
+      <form ng-submit="nc.submit()">
+        <fieldset>
+          <div class="settings">
+            <div class="heading">
+              <h2>
+                {{ 'Settings' | trans }}
+                <span class="help tooltip" title="{{ 'set 0% to disable notifications' | trans }}"></span>
+              </h2>
+            </div>
+      			<div class="field">
+      				<label>
+                {{ 'Memory' | trans }} (<span class="percent">{{nc.model.settings.memory}}</span>%)
+              </label>
+      				<div class="entry">
+      					<div class="slider"></div>
+                <input type="text" ng-model="nc.model.settings.memory" style="display:none" />
+      				</div>
+      			</div>
+      			<div class="field">
+      				<label>
+                {{ 'Load' | trans }} (<span class="percent">{{nc.model.settings.load}}</span>%)
+              </label>
+      				<div class="entry">
+      					<div class="slider"></div>
+                <input type="text" ng-model="nc.model.settings.load" style="display:none" />
+      				</div>
+      			</div>
+      			<div class="field">
+      				<label>
+                {{ "Disk" | trans }} (<span class="percent">{{nc.model.settings.disk}}</span>%)
+              </label>
+      				<div class="entry">
+      					<div class="slider"></div>
+                <input type="text" ng-model="nc.model.settings.disk" style="display:none" />
+      				</div>
+      			</div>
+      			<div class="field">
+      				<label>
+                CPU (<span class="percent">{{nc.model.settings.cpu}}</span>%)
+                <span class="help tooltip" data-tooltip-content="#cpu-inner"></span>
+                <div style="display:none">
+                  <div id="cpu-inner">
+                    <div data-ng-bind-html="('Beaware! CPU average is taken from 5 sec span,<br /> might not be ideal for certain types of application. <br />Prefer &ldquo;Load&rdquo; whenever possible.' | trans) | unsafe"></div>
+                  </div>
+                </div>
+              </label>
+      				<div class="entry">
+      					<div class="slider"></div>
+                <input type="text" ng-model="nc.model.settings.cpu" style="display:none" />
+      				</div>
+      			</div>
+      			<div class="field">
+      				<label>
+                Swap (<span class="percent">{{nc.model.settings.swap}}</span>%)
+              </label>
+      				<div class="entry">
+      					<div class="slider"></div>
+                <input type="text" ng-model="nc.model.settings.swap" style="display:none" />
+      				</div>
+      			</div>
+      			<div class="field">
+      				<label>
+                {{ 'Open Files' | trans }} (<span class="percent">{{nc.model.settings.openfiles}}</span>%)
+              </label>
+      				<div class="entry">
+      					<div class="slider"></div>
+                <input type="text" ng-model="nc.model.settings.openfiles" style="display:none" />
+      				</div>
+      			</div>
+          </div>
+
+          <div class="heading">
+    				<h2>
+              {{ 'Clusters' | trans }}
+              <span class="help tooltip" title="{{ 'enable/disable specific cluster notifications' | trans }}"></span>
+            </h2>
+    			</div>
+
+
+    			<div class="field" ng-repeat="cluster in nc.clusters">
+    				<label>{{ cluster.getName() }}</label>
+    				<div class="check-list">
+    					<label><input type="radio" ng-model="nc.model.clusters[cluster.name]" value="1" /> {{ 'Enabled' | trans }}</label>
+    					<label><input type="radio" ng-model="nc.model.clusters[cluster.name]" value="0" /> {{ 'Disabled' | trans }}</label>
+    				</div>
+    			</div>
+
+          <div class="heading">
+    				<h2>
+              {{ 'Configs' | trans }}
+            </h2>
+    			</div>
+
+    			<div class="field">
+    				<label>{{ 'Wait time in seconds' | trans }} <span class="help tooltip" title="{{ 'to avoid you getting flooded with notifications, 10min default' | trans }}"></span></label>
+    				<div class="entry">
+    					<input type="number" ng-model="nc.model.configs.wait_time" style="width: 100px" />
+    				</div>
+    			</div>
+
+          <div class="heading">
+    				<h2>
+              {{ 'Email' | trans }}
+            </h2>
+    			</div>
+
+    			<div class="field">
+    				<label>{{ 'Notifications' | trans }}</label>
+    				<div class="check-list">
+    					<label><input type="radio" ng-model="nc.model.configs.email.enabled" value="1" /> {{ 'Enabled' | trans }}</label>
+    					<label><input type="radio" ng-model="nc.model.configs.email.enabled" value="0" /> {{ 'Disabled' | trans }}</label>
+    				</div>
+    			</div>
+
+    			<div class="field">
+    				<label>{{ 'To' | trans }} <span class="help tooltip" title="{{ 'Comma-separated values' | trans }}"></span></label>
+    				<div class="entry">
+    					<input type="text" ng-model="nc.model.configs.email.to" />
+    				</div>
+    			</div>
+
+    			<div class="field">
+    				<label>{{ 'From' | trans }}</label>
+    				<div class="entry">
+    					<input type="text" ng-model="nc.model.configs.email.from" />
+    				</div>
+    			</div>
+
+    			<div class="field">
+    				<label>{{ 'Subject Template' | trans }} <span class="help tooltip" data-tooltip-content="#templating"></span></label>
+    				<div class="entry">
+    					<input type="text" ng-model="nc.model.configs.email.subject" />
+    				</div>
+    			</div>
+
+    			<div class="field">
+    				<label>{{ 'Body Template' | trans }} <span class="help tooltip" data-tooltip-content="#templating"></span></label>
+    				<div class="entry">
+    					<textarea ng-model="nc.model.configs.email.body" rows="3"></textarea>
+    				</div>
+    			</div>
+
+    			<div class="field">
+    				<label>{{ 'SMTP Host/Port' | trans }}</label>
+    				<div class="entry">
+    					<input type="text" ng-model="nc.model.configs.email.smtp.host" placeholder="Host" style="float: left; width: 77%;display:inline-block" />
+              <input type="number" ng-model="nc.model.configs.email.smtp.port" placeholder="Port" style="float: right; width: 20%;display:inline-block" />
+    				</div>
+    			</div>
+
+    			<div class="field">
+    				<label>{{ 'SMTP User' | trans }}</label>
+    				<div class="entry">
+    					<input type="text" ng-model="nc.model.configs.email.smtp.user" />
+    				</div>
+    			</div>
+
+    			<div class="field">
+    				<label>{{ 'SMTP Password' | trans }}</label>
+    				<div class="entry">
+    					<input type="password" ng-model="nc.model.configs.email.smtp.pass" />
+    				</div>
+    			</div>
+
+          <div class="heading">
+    				<h2>
+              {{ 'SMS' | trans }}
+            </h2>
+    			</div>
+
+    			<div class="field">
+    				<label>{{ 'Notifications' | trans }}</label>
+    				<div class="check-list">
+    					<label><input type="radio" ng-model="nc.model.configs.sms.enabled" value="1" /> {{ 'Enabled' | trans }}</label>
+    					<label><input type="radio" ng-model="nc.model.configs.sms.enabled" value="0" /> {{ 'Disabled' | trans }}</label>
+    				</div>
+    			</div>
+
+    			<div class="field">
+    				<label>{{ 'To Numbers' | trans }} <span class="help tooltip" title="{{ 'Comma-separated values' | trans }}"></span></label>
+    				<div class="entry">
+    					<input type="text" ng-model="nc.model.configs.sms.to_numbers" />
+    				</div>
+    			</div>
+
+    			<div class="field">
+    				<label>{{ 'SMS Template' |trans }} <span class="help tooltip" data-tooltip-content="#templating"></span></label>
+    				<div class="entry">
+    					<input type="text" ng-model="nc.model.configs.sms.body" />
+    				</div>
+    			</div>
+
+    			<div class="field">
+    				<label>{{ 'Twilio Account SID' | trans }}</label>
+    				<div class="entry">
+    					<input type="text" ng-model="nc.model.configs.sms.twilio.account_sid" />
+    				</div>
+    			</div>
+
+    			<div class="field">
+    				<label>{{ 'Twilio Auth Token' | trans }}</label>
+    				<div class="entry">
+    					<input type="text" ng-model="nc.model.configs.sms.twilio.auth_token" />
+    				</div>
+    			</div>
+
+    			<div class="field">
+    				<label>{{ 'Twilio From Number' | trans }}</label>
+    				<div class="entry">
+    					<input type="text" ng-model="nc.model.configs.sms.twilio.from_number" />
+    				</div>
+    			</div>
+
+          <div style="display:none">
+            <div id="templating">
+              {{ 'The following variables are available:' | trans }} <br /><br />
+              <strong>:type</strong> {{ 'The type of resource (RAM, CPU...)' | trans }}<br />
+              <strong>:percent</strong> {{ 'Resource usage in percent' }} <br />
+              <strong>:cluster</strong> {{ 'The cluster name' | trans }} <br />
+              <strong>:nodeID</strong> {{ 'The ID of the node' | trans }} <br />
+            </div>
+          </div>
+        </fieldset>
+
+        <div class="inner">
+
+          <div class="feedback -success" ng-show="nc.saved">
+            {{ 'Your changes have been saved!' | trans }}
+          </div>
+
+          <div class="ctas">
+            <input type="submit" class="btn -primary" value="{{ 'Save' | trans }}" ng-disabled="nc.submitLoading" />
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
