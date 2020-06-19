@@ -1,0 +1,111 @@
+
+  <div class="wrap" ng-controller="NodesController as nodes">
+    <div class="feedback" ng-show="app.displayskin">
+      {{ "Please choose between" | trans}}
+        <a href="#" ng-click="app.style = 'dark'" ng-class="{'active': app.style == 'dark'}">{{ "dark" | trans}}</a>
+      {{ "or" | trans}}
+        <a href="#" ng-click="app.style = 'light'" ng-class="{'active': app.style == 'light'}">{{ "light" | trans}}</a>
+      {{ "versions" | trans}}
+    </div>
+
+    <div class="feedback -success" ng-show="app.isOk() && !nodes.loading && nodes.nodes.length == 0">
+      {{ "Your installation seems successful, now go ahead and" | trans}}
+      <a ng-href="/nodes/new">{{ "add a new node" | trans}}</a>
+    </div>
+
+    <div class="feedback -error" ng-show="!app.isOk()">
+      {{ "Missing required parameters 'auth' or 'endpoint'" | trans}}
+    </div>
+
+    <h1 ng-show="nodes.loading">{{ 'Loading...' |trans }}</h1>
+
+    <section class="node-list" ng-class="{'-table': nodes.switches[cluster.name] == 'list'}" ng-repeat="cluster in nodes.getAggregatedByCluster()">
+      <h1>
+        {{ cluster.getName() }} ({{ cluster.nodes.length }})
+        <div class="view-switch">
+          <span class="-grid" ng-class="{'active': nodes.switches[cluster.name]=='grid'}" ng-click="nodes.switches[cluster.name] = 'grid'">{{ "Grid" | trans }}</span>
+          <span class="-list" ng-class="{'active': nodes.switches[cluster.name]=='list'}" ng-click="nodes.switches[cluster.name] = 'list'">{{ "List" | trans }}</span>
+        </div>
+      </h1>
+
+      <ul class="check-list" ng-show="cluster.haveHealths()">
+        <li class="ok" ng-show="cluster.allHealthChecksPassing()">{{ "All health checks from this cluster are passing" | trans }}</li>
+        <li class="fail" ng-show="!cluster.allHealthChecksPassing()">{{ "Some health checks from this cluster are failing" | trans }}</li>
+      </ul>
+
+      <div ng-show="nodes.switches[cluster.name] == 'grid'">
+        <div>
+          <div class="nodes">
+            <article ng-repeat="node in cluster.nodes" ng-click="nodes.view(node)">
+              <header class="status-{{ node.getStatus() }} node-details tooltip" title="{{ node.getStatusLabel() }}">
+  <h2>{{ "node" | trans }} {{ node.getShortName() }} <span ng-show="node.datacenter">{{ node.datacenter }}</span></h2>
+  <ul>
+    <li>{{ node.getResource('mem').details.total | formatBytes }} RAM</li>
+    <li>{{ node.processors.length }} CPU @ {{ node.getProcessorHz() | formatBytes:"Hz" }}</li>
+    <li>{{ node.getResource('disk').details.total/1024 | formatBytes }} HD</li>
+  </ul>
+</header>
+
+              <div class="resources">
+                <div class="c100 p{{ resource.getPercent()*1 }} {{ resource.getPercent() >= 80 ? 'red' : 'blue'}}" ng-repeat="resource in node.getResources(null, true).slice(0,3)">
+  <span data-tooltip-content="#node-{{ node.id}}-{{ resource.type }}" class="tooltip">{{ resource.getLabel() }}</span>
+  <div class="slice">
+    <div class="bar"></div>
+    <div class="fill"></div>
+  </div>
+
+  <div style="display:none">
+    <div id="node-{{ node.id}}-{{ resource.type}}" >
+      <div data-ng-bind-html="resource.getTooltip() | unsafe"></div>
+    </div>
+  </div>
+</div>
+
+              </div>
+            </article>
+          </div>
+
+        </div>
+      </div>
+
+      <div ng-show="nodes.switches[cluster.name] == 'list'">
+        <table>
+          <thead>
+            <tr>
+              <th>{{ "Node" | trans }}</th>
+              <th style="width: 80px">{{ 'RAM' | trans }}</th>
+              <th style="width: 80px">{{ 'CPU' | trans }}</th>
+              <th style="width: 80px">{{ 'Load' | trans }}</th>
+              <th style="width: 80px">{{ 'Disk' | trans }}</th>
+              <th style="width: 80px">{{ 'Swap' | trans }}</th>
+              <th style="width: 80px">{{ 'Open Files' |trans}}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="node in cluster.nodes" ng-click="nodes.view(node)">
+              <td class="status-{{ node.getStatus() }} node-details tooltip" title="{{ node.getStatusLabel() }}">
+  <h2>{{ "node" | trans }} {{ node.getShortName() }} <span ng-show="node.datacenter">{{ node.datacenter }}</span></h2>
+  <ul>
+    <li>{{ node.getResource('mem').details.total | formatBytes }} RAM</li>
+    <li>{{ node.processors.length }} CPU @ {{ node.getProcessorHz() | formatBytes:"Hz" }}</li>
+    <li>{{ node.getResource('disk').details.total/1024 | formatBytes }} HD</li>
+  </ul>
+</td>
+
+              <td ng-repeat="resource in node.getResources(['mem', 'cpu', 'load', 'disk', 'swap', 'openfile'])">
+                <div data-tooltip-content="#node-{{ node.id}}-{{ resource.type}}" class="tooltip usage-bar -{{ resource.getPercent() >= 80 ? 'red' : 'blue'}}">
+                  <div style="width: {{ resource.getPercent() }}%"></div>
+                </div>
+
+                <div style="display:none">
+                  <div id="node-{{ node.id}}-{{ resource.type}}" >
+                    <div data-ng-bind-html="resource.getTooltip() | unsafe"></div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
