@@ -1,0 +1,24 @@
+<div class="wrap">
+  <div class="box">
+    <h1>{{ 'New Node' | trans}}</h1>
+    <div class="content">
+      <div class="inner">
+        <p>{{ 'To add a new node just paste the following command in the desired machine to install the agent:' | trans }}</p>
+
+        <pre>
+          export ENDPOINT={{ app.endpoint }};
+          export DATACENTER=;
+          export CLUSTER=;
+          curl -H 'X-Nodmonit-Auth: {{ app.auth }}' $ENDPOINT/install-agent | bash</pre>
+
+        <p>{{ 'Change the variables at will and use HTTPS if available. The only required variable is $ENDPOINT. You can put any string into $DATACENTER and $CLUSTER, for example:' |trans}}</p>
+
+        <pre>
+          export ENDPOINT={{ app.endpoint }};
+          export DATACENTER="aws ec2";
+          export CLUSTER=webapi;
+          curl -H 'X-Nodmonit-Auth: {{ app.auth }}' $ENDPOINT/install-agent | bash</pre>
+      </div>
+    </div>
+  </div>
+</div>
