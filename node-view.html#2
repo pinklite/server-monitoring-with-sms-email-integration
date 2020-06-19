@@ -1,0 +1,149 @@
+ <div class="wrap node-view" ng-controller="NodeViewController as ctrl">
+    <div ng-show="!ctrl.node">
+      <h1>{{ "Loading..." | trans }}</h1>
+    </div>
+    <div ng-show="ctrl.node">
+      <div class="resources">
+        <div class="c100 p{{ resource.getPercent()*2 }} {{ resource.getPercent() >= 80 ? 'red' : 'blue'}}" ng-repeat="resource in ctrl.node.getResources(null, true)">
+  <span data-tooltip-content="#node-{{ node.node.id}}-{{ resource.type }}" class="tooltip">{{ resource.getLabel() }}</span>
+  <div class="slice">
+    <div class="bar"></div>
+    <div class="fill"></div>
+  </div>
+
+  <div style="display:none">
+    <div id="node-{{ node.node.id}}-{{ resource.type}}" >
+      <div data-ng-bind-html="resource.getTooltip() | unsafe"></div>
+    </div>
+  </div>
+</div>
+
+      </div>
+
+
+      <h1>{{ ctrl.cluster.getName() }} <span>({{ ctrl.node.id }})</span></h1>
+      <p class="status-{{ ctrl.node.getStatus() }} status-line">{{ ctrl.node.getStatusLabel() }}</p>
+
+      <nav>
+        <ul ng-click="ctrl.switch($event)">
+          <li ng-class="{'active':ctrl.menu=='overview'}"><a href="#overview">{{ 'Overview' }}</a></li>
+          <li ng-class="{'active':ctrl.menu=='ram'}" ng-show="ctrl.meminfos.length > 0"><a href="#ram">{{ 'RAM' | trans }}</a></li>
+          <li ng-class="{'active':ctrl.menu=='load'}" ng-show="ctrl.loadavgs.length > 0"><a href="#load">{{ 'Load' | trans }}</a></li>
+          <li ng-class="{'active':ctrl.menu=='disk'}" ng-show="ctrl.diskinfos.length > 0"><a href="#disk">{{ 'Disk' | trans }}</a></li>
+          <li ng-class="{'active':ctrl.menu=='cpu'}" ng-show="ctrl.cpuavgs.length > 0"><a href="#cpu">{{ 'CPU' | trans }}</a></li>
+          <li ng-class="{'active':ctrl.menu=='swap'}" ng-show="ctrl.swapinfos.length > 0"><a href="#swap">{{ 'SWAP' | trans }}</a></li>
+          <li ng-class="{'active':ctrl.menu=='openfiles'}" ng-show="ctrl.openfiles.length > 0"><a href="#openfiles">{{ 'Open Files' | trans }}</a></li>
+          <li><a href="#" ng-click="ctrl.delete()">{{ 'Delete Node!' | trans }}</a></li>
+        </ul>
+      </nav>
+
+      <h2 id="overview">{{ 'Overview' | trans }}</h2>
+
+      <div class="node-overview">
+        <div class="details">
+          <dl>
+            <dt>{{ 'Node ID' | trans }}</dt>
+            <dd>{{ ctrl.node.id }}</dd>
+          </dl>
+          <dl>
+            <dt>{{ 'RAM' | trans }}</dt>
+            <dd>{{ ctrl.node.getResource('mem').details.total-ctrl.node.getResource('mem').details.available | formatBytes }} / {{ ctrl.node.getResource('mem').details.total | formatBytes }}</dd>
+          </dl>
+          <dl>
+            <dt>{{ 'Swap' | trans }}</dt>
+            <dd>{{ ctrl.node.getResource('swap').details.total-ctrl.node.getResource('swap').details.available | formatBytes }} / {{ ctrl.node.getResource('swap').details.total | formatBytes }}</dd>
+          </dl>
+          <dl>
+            <dt>{{ 'Disk' | trans }}</dt>
+            <dd>{{ ctrl.node.getResource('disk').details.used/1024 | formatBytes }} / {{ ctrl.node.getResource('disk').details.total/1024 | formatBytes }}</dd>
+          </dl>
+          <dl>
+            <dt>{{ 'Load' | trans }}</dt>
+            <dd>
+              {{ ctrl.node.getResource('load').details.last1min.toFixed(1) }},
+              {{ ctrl.node.getResource('load').details.last5min.toFixed(1) }},
+              {{ ctrl.node.getResource('load').details.last15min.toFixed(1) }}
+            </dd>
+          </dl>
+          <dl>
+            <dt>{{ 'Open Files' | trans }}</dt>
+            <dd>{{ ctrl.node.getResource('openfile').details.open }} / {{ ctrl.node.getResource('openfile').details.limit }}</dd>
+          </dl>
+        </div>
+        <div class="details">
+          <dl ng-if="ctrl.node.created_by_ip != ''">
+            <dt>{{ 'IP' | trans }}</dt>
+            <dd>{{ ctrl.node.created_by_ip }}</dd>
+          </dl>
+          <dl>
+            <dt>{{ 'OS' | trans }}</dt>
+            <dd>{{ ctrl.node.os.name }}</dd>
+          </dl>
+          <dl>
+            <dt>{{ 'Kernel' | trans }}</dt>
+            <dd>{{ ctrl.node.os.kernel }}</dd>
+          </dl>
+          <dl>
+            <dt>{{ 'Arch' | trans }}</dt>
+            <dd>{{ ctrl.node.os.arch }}</dd>
+          </dl>
+          <dl>
+            <dt>{{ 'CPU Cores' | trans }}</dt>
+            <dd>{{ ctrl.node.processors.length }}</dd>
+          </dl>
+          <dl>
+            <dt>{{ 'CPU Model' | trans }}</dt>
+            <dd>{{ ctrl.node.processors[0].model_name }}</dd>
+          </dl>
+        </div>
+      </div>
+
+      <div class="wrapper-graph" ng-show="ctrl.meminfos.length > 0">
+        <h2 id="ram">{{ 'RAM' | trans }}</h2>
+
+        <div class="graph-box" style="height: 400px" data-type="meminfos">
+          <div id="chart-meminfos" style="width: 100%; height: 100%"></div>
+        </div>
+      </div>
+
+      <div class="wrapper-graph" ng-show="ctrl.loadavgs.length > 0">
+        <h2 id="load">{{ 'Load' | trans }}</h2>
+
+        <div class="graph-box" style="height: 400px" data-type="loadavgs">
+          <div id="chart-loadavgs" style="width: 100%; height: 100%"></div>
+        </div>
+      </div>
+
+      <div class="wrapper-graph" ng-show="ctrl.diskinfos.length > 0">
+        <h2 id="disk">{{ 'Disk' | trans }}</h2>
+
+        <div class="graph-box" style="height: 400px" data-type="diskinfos">
+          <div id="chart-diskinfos" style="width: 100%; height: 100%"></div>
+        </div>
+      </div>
+
+      <div class="wrapper-graph" ng-show="ctrl.cpuavgs.length > 0">
+        <h2 id="cpu">{{ 'CPU' | trans }}</h2>
+
+        <div class="graph-box" style="height: 400px" data-type="cpuavgs">
+          <div id="chart-cpuavgs" style="width: 100%; height: 100%"></div>
+        </div>
+      </div>
+
+      <div class="wrapper-graph" ng-show="ctrl.swapinfos.length > 0">
+        <h2 id="swap">{{ 'Swap' | trans }}</h2>
+
+        <div class="graph-box" style="height: 400px" data-type="swapinfos">
+          <div id="chart-swapinfos" style="width: 100%; height: 100%"></div>
+        </div>
+      </div>
+
+      <div class="wrapper-graph" ng-show="ctrl.openfiles.length > 0">
+        <h2 id="openfiles">{{ 'Open Files' | trans }}</h2>
+
+        <div class="graph-box" style="height: 400px" data-type="openfiles">
+          <div id="chart-openfiles" style="width: 100%; height: 100%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
