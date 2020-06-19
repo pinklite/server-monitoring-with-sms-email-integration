@@ -1,0 +1,43 @@
+<!doctype html>
+<html class="no-js @@class" lang="" ng-app="nodmonit" ng-controller="AppController as app">
+  <head ng-controller="I18nController as i18n">
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>{{ 'Nodmonit' | trans }}</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="/assets/css/main.css" >
+    <script src="/assets/javascripts/main.js" type="text/javascript"></script>
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="viewport" content="width=1170">
+    <script type="text/javascript" src="https://www.google.com/jsapi?autoload=%7B%22modules%22%3A%5B%7B%22name%22%3A%22visualization%22%2C%22version%22%3A%221%22%2C%22packages%22%3A%5B%22corechart%22%5D%2C%22language%22%3A%22pt_BR%22%7D%5D%7D"></script>
+
+  </head>
+
+  <body ng-class="{'-light': app.style == 'light'}">
+
+
+    <div class="wrap">
+      <div class="feedback" ng-show="loadingLanguage">
+        Loading...
+      </div>
+    </div>
+    <div ng-if="!loadingLanguage">
+      <div id="header">
+        <div class="wrap">
+          <nav>
+            <ul>
+              <li ng-class="{'active':app.menu=='nodes'}"><a ng-click="app.menu = 'nodes'" ng-href="/">{{ 'Nodes' | trans }}</a></li>
+              <li ng-class="{'active':app.menu=='notification-center'}"><a ng-click="app.menu = 'notification-center'" ng-href="/notification-center">{{ 'Notification Center' | trans }}</a></li>
+            </ul>
+
+            <a ng-href="/nodes/new" ng-click="app.menu = 'nodes'" class="btn -primary">{{ 'New node +' | trans }}</a>
+          </nav>
+        </div>
+      </div>
+
+      <div ui-view></div>
+    </div>
+  </body>
+</html>
