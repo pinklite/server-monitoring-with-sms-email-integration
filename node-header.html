@@ -1,0 +1,8 @@
+<@@tagname class="status-{{ node.getStatus() }} node-details tooltip" title="{{ node.getStatusLabel() }}">
+  <h2>{{ "node" | trans }} {{ node.getShortName() }} <span ng-show="node.datacenter">{{ node.datacenter }}</span></h2>
+  <ul>
+    <li>{{ node.getResource('mem').details.total | formatBytes }} RAM</li>
+    <li>{{ node.processors.length }} CPU @ {{ node.getProcessorHz() | formatBytes:"Hz" }}</li>
+    <li>{{ node.getResource('disk').details.total/1024 | formatBytes }} HD</li>
+  </ul>
+</@@tagname>
