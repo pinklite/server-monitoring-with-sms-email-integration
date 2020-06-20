@@ -1,0 +1,106 @@
+(function() {
+  'use strict';
+
+  angular.module('nodmonit')
+    .controller('NotificationCenterController', function($rootScope, $scope, $stateParams, $http, $state){
+      var ctrl = this;
+
+      $rootScope.app.menu = 'notification-center'
+      ctrl.loading = true
+      ctrl.model = {}
+
+      //$('.tooltip').tooltipster();
+
+      function initUiSlider(){
+        $('.settings input[ng-model]').each(function(){
+          var $field = $(this),
+              slider = $field.parents('.field').find('.slider')[0]
+
+          noUiSlider.create(slider, {
+            start: $field.val(),
+          	connect: [true,false],
+          	range: {
+          		min: 0,
+          		max: 100
+          	}
+          })
+
+          slider.noUiSlider.on('update', function ( values, handle ) {
+            $scope.$apply(function(){
+              var val = parseInt(values[handle])
+              var pieces = $field.attr('ng-model').split('.')
+              ctrl.model.settings[pieces[pieces.length-1]] = val
+            })
+          });
+        })
+      }
+
+      function setModel(data){
+        ctrl.model = data
+        ctrl.model.configs.sms.to_numbers = (ctrl.model.configs.sms.to_numbers||[]).join(', ')
+        ctrl.model.configs.email.to = (ctrl.model.configs.email.to||[]).join(', ')
+      }
+
+      ctrl.submit = function(){
+        var data = JSON.parse(JSON.stringify(ctrl.model))
+
+        ctrl.submitLoading = true
+        ctrl.saved = false
+
+        for(var i in data.clusters){
+          data.clusters[i] = parseBool(data.clusters[i])
+        }
+
+        data.configs.sms.enabled = parseBool(data.configs.sms.enabled)
+        data.configs.email.enabled = parseBool(data.configs.email.enabled)
+        data.configs.sms.to_numbers = commaSeparatedValues(data.configs.sms.to_numbers)
+
+        $http(apiBase('/notification_profiles', data))
+          .then(function(resp){
+            if(resp.data == "Demo only"){
+              setTimeout(alert.bind(null, "Demo only"), 1)
+              return;
+            }
+
+            setModel(resp.data)
+            ctrl.saved = true
+          })
+          .catch(function(){
+            alert("Error saving profile")
+          })
+          .finally(function(e){
+            ctrl.submitLoading = false
+          })
+      }
+
+      $http(apiBase('/notification_profiles'))
+        .then(function(resp){
+          var clusters = resp.data.clusters||{}
+          ctrl.clusters = []
+          setModel(resp.data)
+
+          for(var clusterName in clusters){
+            ctrl.clusters.push(new Cluster(clusterName))
+          }
+
+          setTimeout(initUiSlider, 1)
+        })
+        .finally(function(e){
+          ctrl.loading = false
+        })
+
+      function commaSeparatedValues(values){
+        if(values){
+          return values.split(',').map(function(x){
+            return x.trim()
+          })
+        }
+
+        return []
+      }
+
+      function parseBool(val){
+        return val != '0'
+      }
+    })
+})();
