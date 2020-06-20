@@ -1,0 +1,9 @@
+$sprites: sprite-map("icons/*.png");
+@mixin sprite-background($name) {
+  background-image: sprite-url($sprites);
+  background-position: sprite-position($sprites, $name);
+  background-repeat: no-repeat;
+  display: inline-block;
+  height: image-height(sprite-file($sprites, $name));
+  width: image-width(sprite-file($sprites, $name));
+}
