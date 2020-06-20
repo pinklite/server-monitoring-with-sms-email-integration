@@ -1,0 +1,13 @@
+<div class="c100 p{{ resource.getPercent()*@@multiplier }} {{ resource.getPercent() >= 80 ? 'red' : 'blue'}}" ng-repeat="resource in @@getter">
+  <span data-tooltip-content="#node-{{ @@node.id}}-{{ resource.type }}" class="tooltip">{{ resource.getLabel() }}</span>
+  <div class="slice">
+    <div class="bar"></div>
+    <div class="fill"></div>
+  </div>
+
+  <div style="display:none">
+    <div id="node-{{ @@node.id}}-{{ resource.type}}" >
+      <div data-ng-bind-html="resource.getTooltip() | unsafe"></div>
+    </div>
+  </div>
+</div>
